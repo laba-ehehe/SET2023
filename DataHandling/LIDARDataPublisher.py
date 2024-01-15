@@ -1,7 +1,8 @@
-#import ros
+#Tiger Cao
+#1/15/2024
+
 import rospy
 
-#import data
 from sensor_msgs.msg import PointCloud, Point32
 
 import math
@@ -51,4 +52,10 @@ def lidar_publisher():
 def get_parsed_lidar():
     pass
 
+
+if __name__ == '__main__':
+    try:
+        lidar_publisher()
+    except rospy.ROSInterruptException:
+        pass
 
