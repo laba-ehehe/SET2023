@@ -1,14 +1,19 @@
-# Manav Sanghvi
-# 1/11/2024
-# Periodic Image Capture
+# SET Periodic Image Capture
+# 1/23/2024
 
 import cv2
 import os
 import time
+import rospy
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
 
 def periodic_image_capture(file_path: str, clears_images: bool, cameraNumber, seconds_between_capture):
     # Get USB camera
     camera = cv2.VideoCapture(cameraNumber)
+
+    image_pub = rospy.Publisher("img_sub", Image, queue_size=16)
+    bridge = CvBridge()
 
     # Start the num of images at 0
     num_of_images = 0
@@ -26,6 +31,8 @@ def periodic_image_capture(file_path: str, clears_images: bool, cameraNumber, se
     # Initalize the previous time at 0
     previous_time = 0
 
+    rospy.init_node('periodic_image_capture', anonymous=True)
+
     if camera.isOpened:
         print("WORKING")
         while True:
@@ -36,7 +43,7 @@ def periodic_image_capture(file_path: str, clears_images: bool, cameraNumber, se
             ret, frame = camera.read()
 
             # Display the Frame
-            cv2.imshow('frame', frame)
+            cv2.imshow('Publisher Window', frame)
 
             '''THIS WORKS BUT WILL PAUSE THE ENTIRE PREVIEW DISPLAY'''
             '''WE CAN IMPLEMENT EITHER METHOD DEPENDING ON WHAT WE NEED'''
@@ -49,6 +56,8 @@ def periodic_image_capture(file_path: str, clears_images: bool, cameraNumber, se
 
                 # Write the image to the correct filepath
                 cv2.imwrite(file_path + image_name, frame)
+
+                image_pub.publish(bridge.cv2_to_imgmsg(frame, encoding="passthrough"))
 
                 print("Image Taken:", num_of_images)
 
@@ -67,12 +76,10 @@ def periodic_image_capture(file_path: str, clears_images: bool, cameraNumber, se
 
 if __name__ == "__main__":
     '''Starts Image Counter at 0: '''
-    periodic_image_capture("../", True, 0, 5)
+    periodic_image_capture("images/", True, 0, 5)
     '''Starts Image Counter at how many ever images we already have: '''
-    #periodic_image_capture("../", False, 0, 5)
+    #periodic_image_capture("images/", False, 0, 5)
     
-# To Do Connect to ROS Publisher
-
 
 
 
