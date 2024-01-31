@@ -3,16 +3,17 @@
 import math
 import numpy
 
-#get the distance at the current moment
-def getDistance(prior_point, current_point):
-    distance = math.sqrt(math.pow(prior_point[0] - current_point[0], 2) + math.pow(prior_point[0] - current_point[0], 2))
-    return distance
-
-def get_vector (prior_point, current_point):
-    vector = [(current_point[0] - prior_point[0]), (current_point[1] - prior_point[1])]
+# get the x movement and y movement between 2 points
+def get_vector (from_point, to_point):
+    vector = [(from_point[0] - to_point[0]), (from_point[1] - to_point[1])]
     return vector
 
-#calculate angle from slope and math
+# get the distance between 2 points
+def get_distance(vector):
+    distance = math.sqrt(math.pow(vector[0], 2) + math.pow(vector[1], 2))
+    return distance
+
+# get the angle between 2 vectors to know how much to turn the robot
 def get_angle(prior_vector, current_vector):
     dot_product = numpy.dot(prior_vector, current_vector)
     prior_vector_mag = math.sqrt(pow(prior_vector[0], 2) + pow(prior_vector[1], 2))
@@ -20,37 +21,41 @@ def get_angle(prior_vector, current_vector):
     angle_rad = math.acos(dot_product / (prior_vector_mag * current_vector_mag))
     return angle_rad
 
-#returns the distance the robot moves and sets the angle
-def robot_move(distance, angle, clockwise):
-    return
 
+def move(start, vector):
+    return [(start[0] + vector[0]), (start[1] + vector[1])]
+
+def simulation(path):
+    points = path
+    movements = []
+    from_point = [0, 0]
+    for point in points:
+        movements.append(get_vector(from_point, point)) # which way the robot moves
+        from_point = point
+
+    curr_pos = [0, 0]
+    for movement in movements:
+        curr_pos = move(curr_pos, movement) # actually moves the robot
+    return curr_pos
 
 def main():
-    #angle the robot is facing
-    #preset to 0 (North)
-    direction_angle = 0
-
     #sample point list
-    point_list = [[1,0],[2,1],[3,4]]
-
-    #start point/direction located
-    prior_point = [0,0]
-    prior_vector = [0, 1]
+    point_list = [[0,0],[1,0],[2,1],[3,4]]
+    from_point = point_list[0]
+    prior_vector = get_vector(from_point, point_list[1])
     
-    for point in point_list:
-        distance = getDistance(prior_point, point)
-        vector = get_vector(prior_point, point)
+    for point in point_list[1:]:
+        vector = get_vector(from_point, point)
+        distance = get_distance(vector)
         angle = get_angle(prior_vector, vector)
         if vector[0] > 0:
             clockwise = True
         else:
             clockwise = False
-        robot_move(distance, angle, clockwise)
+        move(distance, angle, clockwise, point)
 
-        prior_point = point
+        from_point = point
         prior_vector = vector
     
-    print(prior_point)
-
 main()
 
