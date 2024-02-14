@@ -2,6 +2,8 @@
 # 1/23/24
 import math
 import numpy
+import serial
+from serial.tools import list_ports
 
 # get the x movement and y movement between 2 points
 def get_vector (from_point, to_point):
@@ -21,6 +23,10 @@ def get_angle(prior_vector, current_vector):
     angle_rad = math.acos(dot_product / (prior_vector_mag * current_vector_mag))
     return angle_rad
 
+def send_data(serialObject, distance, angle, clockwise):
+    serialObject.write(distance)
+    serialObject.write(angle)
+    serialObject.write(clockwise)
 
 def move(start, vector):
     return [(start[0] + vector[0]), (start[1] + vector[1])]
@@ -39,6 +45,8 @@ def simulation(path):
     return curr_pos
 
 def main():
+    ser = serial.Serial('COM3', 9600)
+
     #sample point list
     point_list = [[0,0],[1,0],[2,1],[3,4]]
     from_point = point_list[0]
@@ -52,8 +60,9 @@ def main():
             clockwise = True
         else:
             clockwise = False
-        move(distance, angle, clockwise, point)
 
+        send_data(ser, distance, angle, clockwise)
+        
         from_point = point
         prior_vector = vector
     
