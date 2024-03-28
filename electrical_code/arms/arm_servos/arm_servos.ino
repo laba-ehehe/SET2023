@@ -31,7 +31,5 @@ void loop() {
     myservo.write(newAngleValue);
     myservo2.write(newAngleValue);  
     lastAngleValue = newAngleValue;
-
-    // lan anh was here
   }
 }
